@@ -2,6 +2,7 @@ require 'sinatra'
 require 'json'
 require 'git'
 require 'logger'
+require 'octokit'
 
 class Archivist
   LOG_LEVELS = {
