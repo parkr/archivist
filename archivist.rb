@@ -47,7 +47,7 @@ class Archivist
   end
 
   def merge_push?
-    !latest_commit["message"].match(/Merge pull request/).nil?
+    !latest_commit["message"].match(/Merge pull request #\d+/).nil?
   end
 
   private
@@ -75,9 +75,21 @@ class Archivist
   end
 
   def extract_merge_info
-    raise NotImplementedError
-    payload["commits"].first
-    [message, pr_num]
+    pr_num = latest_commit["message"].match(/Merge pull request #(\d+)/)[1]
+    [
+      pr_title(pr_num),
+      pr_num
+    ]
+  end
+
+  def pr_title(pr_num)
+    JSON.parse(pr_info(pr_num))["title"]
+  end
+
+  def pr_info(pr_num)
+    repo = Octokit::Repository.from_url(payload["repository"]["url"])
+    client = Octokit::Client.new
+    client.pull_request(repo, pr_num)
   end
 
   def history_filename
