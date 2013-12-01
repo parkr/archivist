@@ -25,12 +25,11 @@ class Archivist
     @git = Git.clone(clone_url, dir)
   end
 
-  def write_merge_to_history(repo, push)
-    set_configs(repo)
-    message, pr_num = extract_merge_info(push)
+  def write_merge_to_history
+    set_configs
+    message, pr_num = extract_merge_info
     write_to_history_file(section, message, pr_num)
-    repo.commit_all("Update history to reflect merge of ##{pr_num}")
-    repo.push
+    git.commit_all("Update history to reflect merge of ##{pr_num}.")
   rescue Git::GitExecuteError => e
     logger.error e.message
   end
@@ -47,14 +46,18 @@ class Archivist
     ENV.fetch('GH_TOKEN', '')
   end
 
-  def merge_commit?(commit)
-    !commit["message"].match(/Merge pull request/).nil?
+  def merge_push?
+    !latest_commit["message"].match(/Merge pull request/).nil?
   end
 
   private
 
+  def latest_commit
+    payload["commits"].first
+  end
+
   def fail_if_not_merge_commit
-    unless merge_commit?(payload["commits"].first)
+    unless merge_push?
       logger.fatal "This is not a merge commit. Aborting."
       abort
     end
@@ -66,13 +69,14 @@ class Archivist
     url
   end
 
-  def set_configs(repo)
-    repo.config('user.name',  'Archivist')
-    repo.config('user.email', 'archivist@parkermoo.re')
+  def set_configs
+    git.config('user.name',  'Archivist')
+    git.config('user.email', 'archivist@parkermoo.re')
   end
 
-  def extract_merge_info(push)
+  def extract_merge_info
     raise NotImplementedError
+    payload["commits"].first
     [message, pr_num]
   end
 
@@ -82,11 +86,12 @@ class Archivist
 
   def write_to_history_file(section, message, pr_num)
     Dir.chdir(git.working_directory) do
+      raise NotImplementedError
       history = File.read(history_filename)
       # 1. Find section
       # 2. Append newlines plus item to end of section line
       # 3. Write to History file
-      raise NotImplementedError
+      File.open(history_filename, 'w'){ |f| f.write(history) }
     end
   end
 
@@ -100,6 +105,10 @@ class Archivist
     level = ENV.fetch('LOG_LEVEL', 'info')
     LOG_LEVELS[level] || LOG_LEVELS['info']
   end
+end
+
+get '/' do
+  "Oh, hai."
 end
 
 post '/' do
