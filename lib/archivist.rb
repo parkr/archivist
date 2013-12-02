@@ -17,7 +17,6 @@ class Archivist
   def initialize(push_info)
     @payload = push_info
     logger.debug("New Archivist instantiated with the following payload: #{payload}")
-    fail_if_not_merge_commit
   end
 
   def clone(dir)
@@ -49,6 +48,7 @@ class Archivist
   end
 
   def merge_push?
+    logger.debug("Checking to see if '#{latest_commit["message"]}' is a merge push...")
     !latest_commit["message"].match(/Merge pull request #\d+/).nil?
   end
 
@@ -56,13 +56,6 @@ class Archivist
 
   def latest_commit
     payload["commits"].first
-  end
-
-  def fail_if_not_merge_commit
-    unless merge_push?
-      logger.fatal "This is not a merge commit. Aborting."
-      abort
-    end
   end
 
   def clone_url
