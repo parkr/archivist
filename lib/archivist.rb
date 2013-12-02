@@ -112,7 +112,7 @@ class Archivist
 
   def logger
     @logger ||= Logger.new(STDOUT)
-    @logger.log_level = log_level
+    @logger.level = log_level
     @logger
   end
 
