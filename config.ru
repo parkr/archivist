@@ -1,2 +1,2 @@
-require './archivist'
+require './server'
 run Sinatra::Application
