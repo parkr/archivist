@@ -22,7 +22,7 @@ class Archivist
   def clone(dir)
     FileUtils.rm_rf   dir
     FileUtils.mkdir_p dir
-    logger.info "Cloning #{push["repository"]["url"]} into #{tmp_dir} ..."
+    logger.info "Cloning #{payload["repository"]["url"]} into #{tmp_dir} ..."
     @git = Git.clone(clone_url, dir)
   end
 
