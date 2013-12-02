@@ -52,6 +52,17 @@ class Archivist
     !latest_commit["message"].match(/Merge pull request #\d+/).nil?
   end
 
+  def logger
+    @logger ||= Logger.new(STDOUT)
+    @logger.level = log_level
+    @logger
+  end
+
+  def log_level
+    level = ENV.fetch('LOG_LEVEL', 'info')
+    LOG_LEVELS[level] || LOG_LEVELS['info']
+  end
+
   private
 
   def latest_commit
@@ -102,16 +113,5 @@ class Archivist
       # 3. Write to History file
       File.open(history_filename, 'w'){ |f| f.write(history) }
     end
-  end
-
-  def logger
-    @logger ||= Logger.new(STDOUT)
-    @logger.level = log_level
-    @logger
-  end
-
-  def log_level
-    level = ENV.fetch('LOG_LEVEL', 'info')
-    LOG_LEVELS[level] || LOG_LEVELS['info']
   end
 end
