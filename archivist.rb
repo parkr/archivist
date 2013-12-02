@@ -102,6 +102,7 @@ class Archivist
       raise NotImplementedError
       history = File.read(history_filename)
       # 1. Find section
+      history[/## HEAD\n\n(.*)### #{section}/]
       # 2. Append newlines plus item to end of section line
       # 3. Write to History file
       File.open(history_filename, 'w'){ |f| f.write(history) }
