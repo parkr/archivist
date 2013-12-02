@@ -16,6 +16,7 @@ class Archivist
 
   def initialize(push_info)
     @payload = push_info
+    logger.debug("New Archivist instantiated with the following payload: #{payload}")
   end
 
   def clone(dir)
